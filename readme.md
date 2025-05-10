@@ -2,8 +2,8 @@
 
 <br>
 <br>
-<p align="center" style="font-size: 36pt">Flashbar</p>
-<p align="center" style="font-size: 20pt">By Floerianc</p>
+<h1 align="center">Flashbar</h1>
+<p align="center">By Floerianc</p>
 
 <p align="center"> ⚡ Ultra-fast offline file search tool with a clean UI built using Python/PyQt5.<br>
 Index 2,690,000+ files in a minute.
