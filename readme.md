@@ -88,6 +88,7 @@ All user settings are in `user/settings.cfg`.
 
 ## 📋 TODO / Roadmap
 
+* [ ] Add to Autostart
 * [ ] File type filters (e.g., `.pdf`, `>10MB`)
 * [ ] Context menu actions (Delete, Rename ...)
 * [ ] Bookmarks
