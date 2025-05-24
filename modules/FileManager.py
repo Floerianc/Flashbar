@@ -15,9 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import zlib
 import time
 import json
+import queue
 import config as Config
+from threading import Lock
 from PyQt5.QtCore import(
     QThread,
     pyqtSignal,
@@ -25,13 +28,16 @@ from PyQt5.QtCore import(
 )
 from typing import(
     TYPE_CHECKING,
-    Union
+    Union,
+    Any,
 )
 from rapidfuzz import fuzz
-import modules.drive as _drive
+from modules.Logger import Logger
+import modules.osm as osm
 
 if TYPE_CHECKING:
     from app import SearchBar
+
 
 class FileSpider(QThread):
     """The FileSpider is the part of the program responsible
@@ -46,15 +52,18 @@ class FileSpider(QThread):
     """
     def __init__(
         self, 
-        windowData: dict[str, any]
+        windowData: dict[str, Any],
+        log: Logger
     ) -> None:
         """Initializes the FileSpider by loading it's config and windowData
 
         Args:
-            windowData (dict[str, any]): data of all the files and templates stored
+            windowData (dict[str, Any]): data of all the files and templates stored
         """
         super().__init__()
         self.config = Config.Config('Spider')
+        self.log = log
+        self.osm = osm.OSM()
         self.data = windowData
     
     def queueFiles(
@@ -68,12 +77,32 @@ class FileSpider(QThread):
         """
         self.data['queue'].put(filePaths)
     
+    def jsonifyDB(self) -> dict[str, Any]:
+        """Turns the dictionary object into a object
+        which can be dumped into a JSON without problems
+
+        Returns:
+            dict[str, Any]: modified DB
+        """
+        db = self.data.copy()
+        del db['queue']
+        
+        for i, fileSet in enumerate(db['files'].values()):
+            fileList = list(fileSet)
+            db['files'][str(i)] = fileList
+        
+        return db
+    
     def saveJSON(self) -> None:
-        """Saves the whole data in a JSON.
+        """Saves the whole data in a JSON. Using zlib compression
         """
         time.sleep(1)
-        with open("user\\data.json", "w") as f:
-            json.dump(self.data, f, indent=4)
+        db = self.jsonifyDB()
+        
+        with open("user\\user.db", "wb") as dbf:
+            jsonData = json.dumps(db)
+            compressedBytes = zlib.compress(jsonData.encode(), 9)
+            dbf.write(compressedBytes)
     
     def run(self) -> None:
         """This is the main part of the Thread
@@ -82,7 +111,9 @@ class FileSpider(QThread):
         adds them to a queue. Then seperates them with
         templates and file names
         """
-        drives = _drive.drives()
+        startTime = time.time()
+        
+        drives = self.osm.drives
         buffer = []
         BATCH_SIZE = self.config.BATCH_SIZE
         
@@ -95,11 +126,115 @@ class FileSpider(QThread):
                             self.queueFiles(buffer)
                             buffer = []
                 except (PermissionError, OSError) as e:
-                    print(f"Skipped: {root} ({e})")
+                    self.log.log.info(f"Skipped: {root} ({e})")
                     continue
-        print("Finished full-scan")
+        endTime = time.time()
+        self.log.log.debug("Finished full-scan in %d seconds.", int(endTime-startTime))
+        self.queueFiles(buffer)
+        self.saveJSON()
 
-class FileDBManager(QThread):
+class FileDBLoader(QThread):
+    """This is a seperate class to load
+    a pre-existing DB into the program to regulate CPU usage
+
+    **Inherits from QThread**
+    """
+    def __init__(
+        self, 
+        log: Union[Logger, None]
+    ) -> None:
+        self.log = log
+        super().__init__()
+    
+    def listToSet(
+        self, 
+        l: list
+    ) -> set:
+        """Converts a list of tuples into a set of tuples
+
+        Args:
+            l (list): list of tuples
+
+        Returns:
+            set: set of tuples
+        """
+        return set((template, filename) for template, filename in l)
+    
+    def deJsonifyDB(
+        self, 
+        jsonDB: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Converts a JSON object into a dict object
+
+        Args:
+            jsonDB (dict[str, Any]): JSON
+
+        Returns:
+            dict[str, Any]: converted JSON
+        """
+        jsonDB['queue'] = queue.Queue()
+        oldFileList = list(jsonDB['files'].values())   # snapshot
+        
+        newFiles = {}
+        for i, fileList in enumerate(oldFileList):
+            fileSet = self.listToSet(fileList)
+            newFiles[i] = fileSet
+        
+        newTemplates = {}
+        for key in jsonDB['templates']:
+            newTemplates[int(key)] = jsonDB['templates'][key]
+        
+        jsonDB['files'] = newFiles
+        jsonDB['templates'] = newTemplates
+        return jsonDB
+    
+    def DBIsOlderThan(
+        self, 
+        hours: int
+    ) -> bool:
+        """Checks if the database is older than a 
+        set amount of hours
+
+        Args:
+            hours (int): pretty self explaining, no?
+
+        Returns:
+            bool: True if the DB is older than `hours`
+        """
+        path = os.path.join(os.path.curdir, os.path.relpath("user\\user.db"))
+        dbTime = os.path.getmtime(path)
+        curTime = time.time()
+        difference = curTime - dbTime
+        differenceHours = round(difference/3600, 1)
+        
+        if differenceHours >= hours:
+            return True
+        else:
+            return False
+    
+    def loadJSON(self) -> Union[dict[str, Any], None]:
+        """Tries to load the saved DB in ./user/
+        will return None if it's either a very recent image
+        or if there's no pre-existing DB.
+
+        Returns:
+            Union[dict[str, Any], None]: Converted JSON to dict
+        """
+        try:
+            with open("user\\user.db", "rb") as db:
+                if self.DBIsOlderThan(24):
+                    return None
+                else:
+                    byte = zlib.decompress(db.read())
+                    decodedDB = byte.decode()
+                    jsonDB = json.loads(rf"{decodedDB}")
+        
+        except Exception as e:
+            self.log.log.error("Couldn't find DB") #type: ignore
+            return None
+        return self.deJsonifyDB(jsonDB)
+
+class FileDBInserter(QThread):
     """This class handles most of the work with the dataset
     
     It scans files for it's template (path) and file name and
@@ -112,16 +247,14 @@ class FileDBManager(QThread):
     """
     def __init__(
         self, 
-        windowData: dict[str, any]
+        windowData: dict[str, Any],
+        log: Logger
     ) -> None:
-        """Initializes the FileDBManager by loading the config and its constants
-        and the dataset from the SearchBar
-
-        Args:
-            windowData (dict[str, any]): you know what it is
-        """
+        
         super().__init__()
         self.config = Config.Config('DB')
+        self.log = log
+        self.osm = osm.OSM()
         self.data = windowData
         self.CHUNK_SIZE = self.config.CHUNK_SIZE
     
@@ -146,22 +279,23 @@ class FileDBManager(QThread):
             files (list): list of files
         """
         for file in files:
-            template, filename = _drive.splitPath(file)
+            template, filename = self.osm.splitPath(file)
             
             if template not in self.data["templatesReverse"]:
                 index = len(self.data["templates"])
-                self.data["templates"][index] = template
+                self.data["templates"][str(index)] = template
                 self.data["templatesReverse"][template] = index
             else:
                 index = self.data["templatesReverse"][template]
             
             fileKey = self.data['current']
-            if len(self.data['files'][fileKey]) >= self.CHUNK_SIZE:
+            if len(self.data['files'][str(fileKey)]) >= self.CHUNK_SIZE:
                 fileKey = fileKey + 1
-                self.data['files'][fileKey] = list()
+                self.data['files'][str(fileKey)] = set()
                 self.data['current'] = fileKey
+                self.log.log.info("Reached file batch limit. Initializing new list. file key = %d", fileKey)
             
-            self.data['files'][fileKey].append((index, filename))
+            self.data['files'][str(fileKey)].add((index, filename))
     
     def run(self) -> None:
         """The main part of the Thread
@@ -186,18 +320,18 @@ class FileSearcher(QThread):
     
     def __init__(
         self, 
-        windowData: Union[dict[str, any], 'SearchBar']
+        windowData: dict[str, Any]
     ) -> None:
         """Initializes the FileSearcher
 
         Args:
-            windowData (Union[dict[str, any], &#39;SearchBar&#39;]): Window data
+            windowData (Union[dict[str, Any], &#39;SearchBar&#39;]): Window data
         """
         super().__init__()
         self.data = windowData
         self.config = Config.Config('Search')
         self.MIN_MATCH = self.config.MIN_MATCH
-        self.checkPaths.connect(self.run)
+        self.checkPaths.connect(self.search)
     
     def getSortedFiles(
         self, 
@@ -249,7 +383,7 @@ class FileSearcher(QThread):
         return paths
     
     @pyqtSlot(str)
-    def run(
+    def search(
         self, 
         query: str
     ) -> None:
@@ -263,5 +397,5 @@ class FileSearcher(QThread):
 
 
 if __name__ == "__main__":
-    a = FileSearcher(None)
+    a = FileSearcher(None)              # type: ignore
     print(a.reconstructPaths("readme"))

@@ -18,6 +18,13 @@ import logging
 import time
 import config as Config
 from PyQt5.QtCore import QThread
+from typing import(
+    Any,
+    TYPE_CHECKING
+)
+
+if TYPE_CHECKING:
+    from app import SearchBar
 
 logging.basicConfig(
     filename="log.log",
@@ -34,7 +41,7 @@ class Logger(QThread):
     """
     def __init__(
         self, 
-        windowData: dict[str, any]
+        window: 'SearchBar'
     ) -> None:
         """Initializes the program by loading the config,
         its constants and the window data
@@ -45,7 +52,8 @@ class Logger(QThread):
         super().__init__()
         self.log = logger
         self.config = Config.Config('Logging')
-        self.data = windowData
+        self.window = window
+        self.data = window.dataset
         self.filesAmount = 0
     
     def getFileAmount(self) -> int:
@@ -54,7 +62,7 @@ class Logger(QThread):
         Returns:
             int: Amount of files
         """
-        return sum(len(files) for files in list(self.data['files'].values()) if type(files) is list)
+        return sum(len(files) for files in list(self.data['files'].values()) if type(files) is set)
     
     def run(self) -> None:
         """Sleeps for a while (declared in config)
@@ -63,4 +71,4 @@ class Logger(QThread):
         while True:
             time.sleep(self.config.INTERVAL)
             files = self.getFileAmount()
-            self.log.info("%d Files, %d Templates", files, len(self.data['templates']))
+            self.log.info("%d Files, %d Templates", self.window.files, len(self.data['templates']))

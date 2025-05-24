@@ -32,3 +32,7 @@
 	- or inline function returns and such.
 23. Most importantly, have a good TODO list. Having a clear TODO list with clear goals really helped me get the motivation
 	- I needed to keep working on the project without feeling tired.
+24. You can't iterate over a dict's values and modify the dict then.
+    - Instead, do a snapshot of the dict's values and then create a new dict before deleting the old
+25. JSON really doesn't like it if the key is declared using ' instead of ". Thats why integers like template or fileKey are sometimes converted 
+into str.

@@ -75,3 +75,9 @@ def getIcon(filename: str) -> str:
 
     icon_name = extensionToIcon.get(extension, 'txt')  # fallback to 'txt' if not found
     return f"icons/{icon_name}.png"
+
+imageExts = [
+    '.png', 
+    '.jpg', 
+    '.jpeg'
+]

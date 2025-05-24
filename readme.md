@@ -29,7 +29,9 @@ Index 2,690,000+ files in a minute.
 - **Customizable** keybinds and clean GUI
 - Reverse **path reconstruction**
 - Configurable batch sizes
-- **Lightweight** dark-themed UI
+- **Clean** dark-themed UI
+- **Lightweight** JSON database (15 MB for 1,000,000 files)
+- File **preview** for images
 
 <hr>
 
@@ -37,10 +39,11 @@ Index 2,690,000+ files in a minute.
 
 - Start program
 - Wait for the program to scan every directory _(Takes about 0.5 - 2 Minutes)_
+    - If there's no pre-existing image of your hard drive of course
   - You can also use the searchbar while the program is still loading but not every file can be found 
 - Press custom keybind (Default: `Alt+F12`)
 - Search for file
-- `Left-click` to open the file, `right-click` to open the directory
+- `Left-click` or `Ctrl+Enter` to open the file, `Alt+Enter` to open the directory. `Right-click` to open context menu.
 
 <hr>
 
@@ -79,25 +82,26 @@ All user settings are in `user/settings.cfg`.
 * `SearchBar.py`: Main UI logic + file interaction
 * `config.py`: Loads settings using `ConfigParser`
 * `utils.py`: Helpers
-* `drive.py`: Helpers & Logical Drives
+* `osm.py`: Helpers & Logical Drives
 * `FileManager.py`: Main File & OS logic
 * `Logger.py`: Logs info for user  
 * `user/settings.cfg`: User-tweakable preferences
+* `user/user.db`: Saved database containing each file
 
 ---
 
 ## 📋 TODO / Roadmap
 
-* [ ] Add to Autostart
+* [X] Add to Autostart
 * [ ] File type filters (e.g., `.pdf`, `>10MB`)
-* [ ] Context menu actions (Delete, Rename ...)
+* [X] Context menu actions
 * [ ] Bookmarks
-* [ ] Export/import search DB
+* [X] Export/import search DB
 
 ---
 
 <p align="center">
-Made with ♥️ by <a href="https://github.com/Floerianc/">Florian</a>
+Made with ♥️ by <a href="https://github.com/Floerianc/">Florian.<br><a href="./LICENSE">» License «</a>
 <br><br>
 <img src="assets/icon.png" width=128>
 </p>
