@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import logging
+import sys
 import time
 import config as Config
 from PyQt5.QtCore import QThread
@@ -22,17 +23,22 @@ from typing import(
     Any,
     TYPE_CHECKING
 )
+from modules.osm import OSM
 
 if TYPE_CHECKING:
     from app import SearchBar
 
+osm = OSM()
+exePath = osm.exeDir()
+
 logging.basicConfig(
-    filename="log.log",
+    filename=f"{exePath}\\log.log",
     format='%(asctime)s %(message)s',
     filemode='w'
 )
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
+logger.info("Working directory: %s", exePath)
 
 class Logger(QThread):
     """Logger class logs information regarding the program

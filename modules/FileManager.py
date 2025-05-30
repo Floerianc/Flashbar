@@ -15,12 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import copy
 import zlib
 import time
 import json
 import queue
 import config as Config
-from threading import Lock
 from PyQt5.QtCore import(
     QThread,
     pyqtSignal,
@@ -99,7 +99,7 @@ class FileSpider(QThread):
         time.sleep(1)
         db = self.jsonifyDB()
         
-        with open("user\\user.db", "wb") as dbf:
+        with open(f"{self.osm.exeDir()}\\user\\user.db", "wb") as dbf:
             jsonData = json.dumps(db)
             compressedBytes = zlib.compress(jsonData.encode(), 9)
             dbf.write(compressedBytes)
@@ -144,6 +144,7 @@ class FileDBLoader(QThread):
         log: Union[Logger, None]
     ) -> None:
         self.log = log
+        self.osm = osm.OSM()
         super().__init__()
     
     def listToSet(
@@ -182,7 +183,7 @@ class FileDBLoader(QThread):
         
         newTemplates = {}
         for key in jsonDB['templates']:
-            newTemplates[int(key)] = jsonDB['templates'][key]
+            newTemplates[key] = jsonDB['templates'][key]
         
         jsonDB['files'] = newFiles
         jsonDB['templates'] = newTemplates
@@ -201,7 +202,7 @@ class FileDBLoader(QThread):
         Returns:
             bool: True if the DB is older than `hours`
         """
-        path = os.path.join(os.path.curdir, os.path.relpath("user\\user.db"))
+        path = os.path.join(self.osm.exeDir(), "user\\user.db")
         dbTime = os.path.getmtime(path)
         curTime = time.time()
         difference = curTime - dbTime
@@ -221,7 +222,7 @@ class FileDBLoader(QThread):
             Union[dict[str, Any], None]: Converted JSON to dict
         """
         try:
-            with open("user\\user.db", "rb") as db:
+            with open(f"{self.osm.exeDir()}\\user\\user.db", "rb") as db:
                 if self.DBIsOlderThan(24):
                     return None
                 else:
@@ -320,7 +321,8 @@ class FileSearcher(QThread):
     
     def __init__(
         self, 
-        windowData: dict[str, Any]
+        windowData: dict[str, Any],
+        log: Logger
     ) -> None:
         """Initializes the FileSearcher
 
@@ -329,6 +331,7 @@ class FileSearcher(QThread):
         """
         super().__init__()
         self.data = windowData
+        self.log = log
         self.config = Config.Config('Search')
         self.MIN_MATCH = self.config.MIN_MATCH
         self.checkPaths.connect(self.search)
@@ -379,7 +382,10 @@ class FileSearcher(QThread):
         
         for i in range(self.config.MAX_RESULTS) if len(l) >= self.config.MAX_RESULTS else range(len(l)):
             template, name = l[i][1]
-            paths.append(os.path.join(self.data['templates'][template], name))
+            try:
+                paths.append(os.path.join(self.data['templates'][str(template)], name))
+            except Exception as e:
+                self.log.log.error("Couldn't find file (%s). Template:\t %s (type: %s), name:\t %s (type: %s)", str(e), str(template), str(type(template)), str(name), str(type(name)))
         return paths
     
     @pyqtSlot(str)

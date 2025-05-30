@@ -36,3 +36,4 @@
     - Instead, do a snapshot of the dict's values and then create a new dict before deleting the old
 25. JSON really doesn't like it if the key is declared using ' instead of ". Thats why integers like template or fileKey are sometimes converted 
 into str.
+26. If run from autorun, it sets the cwd (current working directory) as system32

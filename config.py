@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from configparser import ConfigParser
+from modules.osm import OSM
 
 class Config(ConfigParser):
     """Loads the configs from the user/settings.cfg config file
@@ -31,7 +32,7 @@ class Config(ConfigParser):
         It creates a ConfigParser
         """
         super().__init__()
-        self.read('user/settings.cfg')
+        self.read(f"{OSM().exeDir()}\\user\\settings.cfg")
         self.type = types
         
         map = {

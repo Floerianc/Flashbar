@@ -77,6 +77,24 @@ class OSM:
         """
         return path.rsplit("\\", 1)
     
+    def exeDir(self) -> str:
+        """Returns the directory of the file executed to launch the app.
+        
+        This is very useful for whenever the app is launched by autorun
+        as usually windows sets the cwd (current working directory) to sys32.
+        
+        To counter this every class which uses the filesystem needs access to this class
+        and this function so we can work with paths relative to the executable file.
+
+        Returns:
+            str: Path as string
+        """
+        # if getattr(sys, 'frozen', False):
+        #     path = sys.executable
+        # else:
+        #     path = os.path.abspath(sys.argv[0])
+        return self.splitPath(sys.executable if getattr(sys, 'frozen', False) else os.path.abspath(sys.argv[0]))[0]
+    
     def _RunRegistry(self) -> None:
         """Adds the program to the autorun in Windows registry
         """

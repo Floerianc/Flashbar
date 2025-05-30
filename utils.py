@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+from modules.osm import OSM
 
 def rangespace(
     start: float, 
@@ -74,7 +75,7 @@ def getIcon(filename: str) -> str:
     }
 
     icon_name = extensionToIcon.get(extension, 'txt')  # fallback to 'txt' if not found
-    return f"icons/{icon_name}.png"
+    return f"{OSM().exeDir()}\\icons\\{icon_name}.png"
 
 imageExts = [
     '.png', 

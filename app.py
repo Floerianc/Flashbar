@@ -105,7 +105,7 @@ class SearchBar(QWidget):
             self.backgroundTask.start(QThread.Priority.HighestPriority)
             self.FileQueue.start(QThread.Priority.HighPriority)
         
-        self.reconstructWorker = FileManager.FileSearcher(self.dataset)
+        self.reconstructWorker = FileManager.FileSearcher(self.dataset, self.logger)
         self.fileAmountHelper = FileAmountUpdater(self)
         self.reconstructThread = QThread()
         
@@ -161,7 +161,7 @@ class SearchBar(QWidget):
     def setupUi(self) -> None:
         """Sets a few settings and connections for the UI widgets
         """
-        with open("ui\\style.css", "r") as css:
+        with open(f"{self.osm.exeDir()}\\ui\\style.css", "r") as css:
             self.UIStyle = css.read()
         self.ui.listWidget.setMouseTracking(True)
         self.ui.listWidget.setIconSize(QSize(self.config.ICON_WIDTH, self.config.ICON_HEIGHT))
@@ -524,7 +524,7 @@ if __name__ == "__main__":
 #       - Search Filters (type: .extension, size=>10MB etc)                                 
 #       - Debounce timer                                                                    (DONE)
 #       - Right-click Context menu instead                                                  (DONE)
-#       - Better UI/UX (Accent Colors or smth idek)                                         
+#       - Better UI/UX (Accent Colors or smth idek)                                         (DONE)
 #       - Bookmark files                                                                    
 #       - Save and Load drives                                                              (DONE)
 #           - Find way to convert JSON to dict with sets and queues and all                 (DONE)
@@ -534,3 +534,4 @@ if __name__ == "__main__":
 #       - Compress JSON obj with zlib (8.13x smaller)                                       (DONE)
 #       - IMG Preview                                                                       (DONE)
 #       - Refresh DB after 1 Day                                                            (DONE)
+#       - Convert keys in dictionaries to integers for Runtime                              
