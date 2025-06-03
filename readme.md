@@ -45,6 +45,10 @@ Index 2,690,000+ files in a minute.
 - Search for file
 - `Left-click` or `Ctrl+Enter` to open the file, `Alt+Enter` to open the directory. `Right-click` to open context menu.
 
+<p align="center">
+    <img src="assets/preview.gif">
+</p>
+
 <hr>
 
 ## 📦 Installation
