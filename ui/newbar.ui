@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1600</width>
+    <height>382</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPlainTextEdit" name="textEdit">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1601</width>
+     <height>128</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>Search...</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="fileLabel">
+   <property name="geometry">
+    <rect>
+     <x>1300</x>
+     <y>128</y>
+     <width>301</width>
+     <height>256</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="previewLabel">
+   <property name="geometry">
+    <rect>
+     <x>16</x>
+     <y>128</y>
+     <width>256</width>
+     <height>256</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QTabWidget" name="tabs">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>128</y>
+     <width>1010</width>
+     <height>260</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border: none;</string>
+   </property>
+   <property name="currentIndex">
+    <number>3</number>
+   </property>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Search Results</string>
+    </attribute>
+    <widget class="QListWidget" name="searchResults">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1000</width>
+       <height>231</height>
+      </rect>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>Bookmarks</string>
+    </attribute>
+    <widget class="QListWidget" name="bookmarks">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1000</width>
+       <height>231</height>
+      </rect>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_3">
+    <attribute name="title">
+     <string>Recent Files</string>
+    </attribute>
+    <widget class="QListWidget" name="recentFiles">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1000</width>
+       <height>231</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_4">
+    <attribute name="title">
+     <string>Relevance</string>
+    </attribute>
+    <widget class="QListWidget" name="relevantFiles">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1000</width>
+       <height>231</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <zorder>tabs</zorder>
+  <zorder>textEdit</zorder>
+  <zorder>fileLabel</zorder>
+  <zorder>previewLabel</zorder>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

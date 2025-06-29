@@ -37,3 +37,5 @@
 25. JSON really doesn't like it if the key is declared using ' instead of ". Thats why integers like template or fileKey are sometimes converted 
 into str.
 26. If run from autorun, it sets the cwd (current working directory) as system32
+27. The DBInserter is ridiculously fast but gets bottlenecked because os.walk() is quite slow
+28. Instead of writing big functions to compare two classes, just check if they already have a __eq__ and __gt__ function '-'

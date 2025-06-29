@@ -15,7 +15,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-from modules.osm import OSM
+import warnings
+from modules.OSM import OSM
+from dataclasses import dataclass
 
 def rangespace(
     start: float, 
@@ -35,6 +37,12 @@ def rangespace(
     """
     step_size = (stop - start) / steps
     return [start + (step_size * iteration) for iteration in range(steps + 1)]
+
+imageExts = [
+    '.png', 
+    '.jpg', 
+    '.jpeg'
+]
 
 def getIcon(filename: str) -> str:
     """Returns the path to an icon for a certain extension
@@ -77,8 +85,47 @@ def getIcon(filename: str) -> str:
     icon_name = extensionToIcon.get(extension, 'txt')  # fallback to 'txt' if not found
     return f"{OSM().exeDir()}\\icons\\{icon_name}.png"
 
-imageExts = [
-    '.png', 
-    '.jpg', 
-    '.jpeg'
-]
+def interpretSize(query: str) -> int:
+    """Interprets a string as a size in bytes.
+
+    Args:
+        query (str): User input (e.g. 100000000 or "100mb")
+
+    Returns:
+        int: Size in bytes.
+    """
+    # 1024
+    # 10kb
+    sizes = ['kb', 'mb', 'gb', 'tb']
+    query = query.lower()
+    
+    if query.isdigit():
+        warnings.warn(f"String is only digits, not converting", Warning)
+        return int(query)
+    elif query.isalpha():
+        warnings.warn(f"String is only chars, returning -1", Warning)
+        return -1
+    else:
+        name = ""
+        size = ""
+        
+        for iteration, letter in enumerate(query):
+            if not letter.isdigit():
+                size = int(query[0:iteration])
+                name = query[iteration:]
+                break
+        if name in sizes:
+            power = sizes.index(name) + 1
+            byteSize = size * pow(1024, power)
+            print(f"{byteSize:,} B")
+            return byteSize
+        else:
+            warnings.warn(f"Size name (e.g. kb, gb) wasn't found. Perhaps you made a typo? input: {name}", Warning)
+            if size == "":
+                warnings.warn("No numeric value found before the unit. Returning 0.", Warning)
+                return 0
+            else:
+                return int(size)
+
+if __name__ == "__main__":
+    pass

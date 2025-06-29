@@ -15,7 +15,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-import copy
 import zlib
 import time
 import json
@@ -33,7 +32,7 @@ from typing import(
 )
 from rapidfuzz import fuzz
 from modules.Logger import Logger
-import modules.osm as osm
+import modules.OSM as osm
 
 if TYPE_CHECKING:
     from app import SearchBar

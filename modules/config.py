@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from configparser import ConfigParser
-from modules.osm import OSM
+from modules.OSM import OSM
 
 class Config(ConfigParser):
     """Loads the configs from the user/settings.cfg config file
@@ -58,6 +58,7 @@ class Config(ConfigParser):
         """
         self.KEY1 = self.get("Control", "KEY1", fallback="ctrl")
         self.KEY2 = self.get("Control", "KEY2", fallback="space")
+        self.DEBOUNCE = self.getint("Control", "DEBOUNCE", fallback=500)
     
     def Spider(self) -> None:
         """Loads every setting from the Spider section

@@ -15,15 +15,14 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import logging
-import sys
 import time
-import config as Config
+import modules.config as Config
 from PyQt5.QtCore import QThread
 from typing import(
     Any,
     TYPE_CHECKING
 )
-from modules.osm import OSM
+from modules.OSM import OSM
 
 if TYPE_CHECKING:
     from app import SearchBar
@@ -60,21 +59,19 @@ class Logger(QThread):
         self.config = Config.Config('Logging')
         self.window = window
         self.data = window.dataset
-        self.filesAmount = 0
-    
-    def getFileAmount(self) -> int:
-        """Returns the amount of files in the dataset
-
-        Returns:
-            int: Amount of files
-        """
-        return sum(len(files) for files in list(self.data['files'].values()) if type(files) is set)
+        self.finishedScan = False
     
     def run(self) -> None:
         """Sleeps for a while (declared in config)
         and then logs the amount of files and templates.
         """
-        while True:
+        temp = 0
+        while not self.finishedScan:
             time.sleep(self.config.INTERVAL)
-            files = self.getFileAmount()
-            self.log.info("%d Files, %d Templates", self.window.files, len(self.data['templates']))
+            if self.window.files <= temp:
+                self.finishedScan = True
+                continue
+            else:
+                files = self.window.files
+                self.log.info("%d Files, %d Templates", files, len(self.data['templates']))
+                temp = files

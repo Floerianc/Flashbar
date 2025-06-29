@@ -6,7 +6,7 @@
 <p align="center">By Floerianc</p>
 
 <p align="center"> ⚡ Ultra-fast offline file search tool with a clean UI built using Python/PyQt5.<br>
-Index 2,690,000+ files in a minute.
+Index 3,078,000+ files in a minute.
 </p>
 
 <p align="center">
@@ -24,30 +24,72 @@ Index 2,690,000+ files in a minute.
 <hr>
 
 ## ℹ️ Features
-- **Blazingly** fast file indexing (multi-threaded)
-- **Fuzzy search** with **live** results
-- **Customizable** keybinds and clean GUI
-- Reverse **path reconstruction**
-- Configurable batch sizes
-- **Clean** dark-themed UI
-- **Lightweight** JSON database (15 MB for 1,000,000 files)
-- File **preview** for images
+
+- **Near-instant indexing**: Over **900,000 files in 10 seconds**
+- **Fuzzy search** with live, ranked results
+- Fully **offline** with a lightweight, compressed DB
+- **Multithreaded scanning** across drives
+- File **relevancy tracking** (frequency, recency, score)
+- Smart filters: `size>`, `name=`, `after=`, `type=`, etc.
+- **Dark-themed PyQt5 GUI** with icon previews
+- **Custom keybinds** and responsive hotkey toggle (default: `Alt+F12`)
+- Safe, user-adjustable config — no code editing required
 
 <hr>
 
 ## 🖥️ Usage
 
-- Start program
-- Wait for the program to scan every directory _(Takes about 0.5 - 2 Minutes)_
-    - If there's no pre-existing image of your hard drive of course
-  - You can also use the searchbar while the program is still loading but not every file can be found 
-- Press custom keybind (Default: `Alt+F12`)
-- Search for file
-- `Left-click` or `Ctrl+Enter` to open the file, `Alt+Enter` to open the directory. `Right-click` to open context menu.
+1. Launch the app.
+2. Let FlashBar scan your system. *(Typically 30–60 seconds on first run.)*
+3. Press your hotkey (default: `Alt+F12`) to open the search bar anytime.
+4. Type your query — results appear instantly.
+5. `Left-click` or `Ctrl+Enter` to open file, `Alt+Enter` to open directory, `Right-click` for context menu.
 
-<p align="center">
-    <img src="assets/preview.gif">
-</p>
+> 💡 You can search while scanning is in progress — results will improve as indexing completes.
+
+## 🎛️ Controls & Search Filters
+
+FlashBar is designed to be lightning-fast and **keyboard-optimized**. Here's a breakdown of all available controls and filters:
+
+### 🕹️ Controls
+
+| Key / Action    | Description                                           |
+| --------------- | ----------------------------------------------------- |
+| `Left-Click`    | Open the selected file instantly                      |
+| `Right-Click`   | Open context menu for the selected file               |
+| `Esc`           | Unfocus search bar *(if focused)*, or minimize window |
+| `Ctrl+Enter`    | Open the **top-most** result (file)                   |
+| `Alt+Enter`     | Open the **directory** of the top result              |
+| `Right Arrow →` | Switch to the next tab (must unfocus searchbar)       |
+| `Left Arrow ←`  | Switch to the previous tab                            |
+
+---
+
+### 🔍 Search Filters
+
+FlashBar supports advanced **inline filtering** inside your search bar:
+
+| Filter    | Description                                                        |
+| --------- | ------------------------------------------------------------------ |
+| `type=`   | Match file extensions (e.g. `type=pdf`, `type=jpg`)                |
+| `name=`   | File name **must include** this string (exact match required)      |
+| `size>`   | Files larger than specified size (e.g. `size>200kb`)               |
+| `size<`   | Files smaller than specified size                                  |
+| `before=` | Only files modified **before** a specific date                     |
+| `after=`  | Only files modified **after** a specific date                      |
+| `on=`     | Only files modified **on** a specific date                         |
+
+**🗓️ Date Format Support:**
+
+* Separator: `-` (e.g. `2024-01-05`)
+* Supported formats:
+
+  * `YYYY-MM-DD`
+  * `DD-MM-YYYY`
+  * `MM-DD-YYYY`
+
+> ⚠️ Filters can be **combined** for even more accurate searches. Example:
+> `type=pdf size>2mb after=2023-01-01`
 
 <hr>
 
@@ -81,26 +123,16 @@ All user settings are in `user/settings.cfg`.
 
 ---
 
-## 🧑‍💼 Architecture Overview
-
-* `SearchBar.py`: Main UI logic + file interaction
-* `config.py`: Loads settings using `ConfigParser`
-* `utils.py`: Helpers
-* `osm.py`: Helpers & Logical Drives
-* `FileManager.py`: Main File & OS logic
-* `Logger.py`: Logs info for user  
-* `user/settings.cfg`: User-tweakable preferences
-* `user/user.db`: Saved database containing each file
-
----
-
 ## 📋 TODO / Roadmap
 
 * [X] Add to Autostart
-* [ ] File type filters (e.g., `.pdf`, `>10MB`)
+* [X] File type filters (e.g., `.pdf`, `>10MB`)
 * [X] Context menu actions
-* [ ] Bookmarks
+* [X] Bookmarks
 * [X] Export/import search DB
+* [ ] Show directories too
+* [ ] Instant look-up version
+* [ ] More customization
 
 ---
 

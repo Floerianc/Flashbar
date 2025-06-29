@@ -1,4 +1,4 @@
-# FlashBar - modules/drive.py -> Handles some of the logic regarding pathing and logical drives
+# FlashBar - modules/OSM.py -> Handles some of the logic regarding pathing and logical drives
 # Copyright (C) 2025  Florian, Floerianc on Github (https://www.github.com/floerianc)
 
 # This program is free software: you can redistribute it and/or modify
@@ -15,9 +15,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import win32api
+import warnings
 import os
 import sys
 import winreg
+from typing import Union
 
 class OSM:
     """This class manages most of the work with the OS itself
@@ -46,6 +48,13 @@ class OSM:
             list[str]: list of drives
         """
         return win32api.GetLogicalDriveStrings().split("\000")[:-1] # C:\\ & E:\\
+    
+    def fileSize(self, path: str) -> int:
+        try:
+            return os.path.getsize(path)
+        except Exception as e:
+            warnings.warn(str(e), Warning)
+            return -1
     
     def dirFiles(self, root: str) -> list:
         """Returns the full file path of each file in a directory
